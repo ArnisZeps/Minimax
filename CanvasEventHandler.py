@@ -28,6 +28,7 @@ class CanvasEventHandler:
                     if(self.gameLineManager.canExist(GameFieldLine(self.START_POINT_BUFFER, self.END_POINT_BUFFER))):
                         self.gameLineManager.drawLine(self.START_POINT_BUFFER, self.END_POINT_BUFFER)
                         self.CLICKED = False
-                        self.gameManager.switchPlayer()
                         self.gamePointManager.removeAvailablePoints(self.START_POINT_BUFFER, self.END_POINT_BUFFER)
+                        # print(len(self.gamePointManager.getAvailablePoints()))
+                        self.gameManager.switchPlayer()
                         break
