@@ -6,8 +6,11 @@ class GamePointManager():
     
     def __init__(self, canvas, pointCount):
         self.canvas = canvas
+        self.pointCount = pointCount
+
+    def createPoints(self):
         self.gamePoints = []
-        for i in range(pointCount):
+        for i in range(self.pointCount):
             x = random.randint(5, self.canvas.winfo_width() - 5)
             y = random.randint(5, self.canvas.winfo_height() - 5)
             self.gamePoints.append(GameFieldPoint(x, y))

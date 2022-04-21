@@ -15,15 +15,21 @@ class AI():
 
     def getPlayerType(self):
         return self.playerType
+    def getHeuristicEvaluation(self):
+        eval = 0
+        for pointOne in self.gamePointManager.getAvailablePoints():
+            for pointTwo in self.gamePointManager.getAvailablePoints():
+                if(pointOne != pointTwo):
+                    if (not (self.gameLineManager.canExist(GameFieldLine(pointOne, pointTwo)))):
+                        eval = eval + 1
+        return eval/2
 
-    def miniMax(self, depth, player):
+    def miniMax(self, depth, player, alpha, beta):
         otherPlayer = 'PLAYER_TWO' if player == 'PLAYER_ONE' else 'PLAYER_ONE'
-        result = self.gameManager.checkState()
-        if(result != 'STILL ARE MOVES'):
-            if(player == 'PLAYER_TWO'):
-                return 1
-            else:
-                return -1
+        bestMove = None
+        test = None
+        if(depth > 2 ): 
+            return self.getHeuristicEvaluation()
         if(self.playerType == 'PLAYER_ONE'):
             bestScore = -math.inf
         else:
@@ -35,18 +41,19 @@ class AI():
                         tmpLine = GameFieldLine(pointOne, pointTwo)
                         self.gameLineManager.addLine(tmpLine)
                         self.gamePointManager.removeAvailablePoints(pointOne, pointTwo)
-                        # if((bestScore > 0 and self.playerType == 'PLAYER_TWO')or(bestScore < 0 and self.playerType == 'PLAYER_ONE')):
-                        score = self.miniMax(depth + 1, otherPlayer)
+                        option = self.miniMax(depth + 1, otherPlayer)
                         self.lines.remove(tmpLine)
                         self.gamePointManager.addAvailablePoints(pointOne, pointTwo)
                         if(self.playerType == 'PLAYER_ONE'):
-                            if(score>bestScore):
-                                bestScore = score      
+                            if(option>bestScore):
+                                bestScore = option      
                                 bestMove = [pointOne, pointTwo]
                         else:
-                            if(score<bestScore):
-                                bestScore = score      
-                                bestMove = [pointOne, pointTwo]  
+                            if(option<bestScore):
+                                bestScore = option      
+                                bestMove = [pointOne, pointTwo]
+        if(bestMove is None ):
+            return self.getHeuristicEvaluation()
 
         if(depth == 0):
             self.gameLineManager.drawLine(bestMove[0], bestMove[1])
@@ -56,7 +63,7 @@ class AI():
             return bestScore
 
     def makeTurn(self):
-        self.miniMax(0, self.playerType)
+        self.miniMax(0, self.playerType, -math.inf, math.inf)
 
 
 

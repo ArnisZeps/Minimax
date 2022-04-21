@@ -14,20 +14,20 @@ window = Window("Lines", 1024 ,576)
 gameFrame = GameFrame(window)
 gameFrame.pack(expand=True, fill=BOTH)
 
-uIFrame = UIFrame(window)
-uIFrame.pack(side="bottom", fill=BOTH)
-
 gameCanvas = GameCanvas(gameFrame)
 gameCanvas.pack(expand=True, fill=BOTH)
 gameCanvas.update()
 
-gamePointManager = GamePointManager(gameCanvas, 10)
-gamePointManager.drawPoints()
+gamePointManager = GamePointManager(gameCanvas, 8)
+# gamePointManager.drawPoints()
 
 gameLineManager = GameLineManager(gameCanvas)
 
-ai = AI(gamePointManager, gameLineManager, 'PLAYER_ONE', gameLineManager, gamePointManager)
+ai = AI(gamePointManager, gameLineManager, 'PLAYER_TWO', gameLineManager, gamePointManager)
 gameManager = GameManager(ai, gamePointManager, gameLineManager)
+
+uIFrame = UIFrame(window, gameManager)
+uIFrame.pack(side="bottom", fill=BOTH)
 
 canvasEventHandler = CanvasEventHandler(gameCanvas,
                                         uIFrame,
@@ -38,3 +38,4 @@ canvasEventHandler = CanvasEventHandler(gameCanvas,
 gameCanvas.bind("<Button-1>", canvasEventHandler.handleClick)
 
 window.mainloop()
+

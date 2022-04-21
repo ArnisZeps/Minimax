@@ -3,15 +3,20 @@ class GameManager:
     def __init__(self, ai, gamePointManager, gameLineManager):
         self.playerOne = 'PLAYER_ONE'
         self.playerTwo = 'PLAYER_TWO'
+        self.isGameInProgress = False
         self.gameLineManager = gameLineManager
         self.gamePointManager = gamePointManager
         self.currentPlayer = self.playerOne
         self.ai = ai
         self.ai.setGameManager(self)
-        if(self.ai.getPlayerType() == self.currentPlayer):
-            self.ai.makeTurn()
-            self.switchPlayer()
 
+    def startGame(self):
+        if(not self.isGameInProgress):
+            self.gamePointManager.createPoints()
+            self.gamePointManager.drawPoints()
+            if(self.ai.getPlayerType() == self.currentPlayer):
+                self.ai.makeTurn()
+                self.switchPlayer()
 
     def getCurrentPlayer(self):
         return self.currentPlayer
