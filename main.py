@@ -18,12 +18,12 @@ gameCanvas = GameCanvas(gameFrame)
 gameCanvas.pack(expand=True, fill=BOTH)
 gameCanvas.update()
 
-gamePointManager = GamePointManager(gameCanvas, 8)
+gamePointManager = GamePointManager(gameCanvas, 12)
 # gamePointManager.drawPoints()
 
 gameLineManager = GameLineManager(gameCanvas)
 
-ai = AI(gamePointManager, gameLineManager, 'PLAYER_TWO', gameLineManager, gamePointManager)
+ai = AI(gamePointManager, gameLineManager, 'PLAYER_ONE', gameLineManager, gamePointManager)
 gameManager = GameManager(ai, gamePointManager, gameLineManager)
 
 uIFrame = UIFrame(window, gameManager)

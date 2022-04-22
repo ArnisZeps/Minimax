@@ -10,11 +10,12 @@ class GameManager:
         self.ai = ai
         self.ai.setGameManager(self)
 
-    def startGame(self):
+    def startGame(self, AIType):
         if(not self.isGameInProgress):
             self.gamePointManager.createPoints()
             self.gamePointManager.drawPoints()
             if(self.ai.getPlayerType() == self.currentPlayer):
+                self.isGameInProgress = True
                 self.ai.makeTurn()
                 self.switchPlayer()
 

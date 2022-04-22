@@ -28,9 +28,14 @@ class AI():
         otherPlayer = 'PLAYER_TWO' if player == 'PLAYER_ONE' else 'PLAYER_ONE'
         bestMove = None
         test = None
-        if(depth > 2 ): 
+        if(self.gameManager.checkState() != 'STILL ARE MOVES'):
+            if(player == 'PLAYER_ONE'):
+                return -math.inf
+            elif(player == 'PLAYER_TWO'):
+                return math.inf
+        if(depth > 3):
             return self.getHeuristicEvaluation()
-        if(self.playerType == 'PLAYER_ONE'):
+        if(player == 'PLAYER_ONE'):
             bestScore = -math.inf
         else:
             bestScore = math.inf
@@ -41,10 +46,10 @@ class AI():
                         tmpLine = GameFieldLine(pointOne, pointTwo)
                         self.gameLineManager.addLine(tmpLine)
                         self.gamePointManager.removeAvailablePoints(pointOne, pointTwo)
-                        option = self.miniMax(depth + 1, otherPlayer)
+                        option = self.miniMax(depth + 1, otherPlayer, alpha, beta)
                         self.lines.remove(tmpLine)
                         self.gamePointManager.addAvailablePoints(pointOne, pointTwo)
-                        if(self.playerType == 'PLAYER_ONE'):
+                        if(player == 'PLAYER_ONE'):
                             if(option>bestScore):
                                 bestScore = option      
                                 bestMove = [pointOne, pointTwo]
@@ -52,8 +57,18 @@ class AI():
                             if(option<bestScore):
                                 bestScore = option      
                                 bestMove = [pointOne, pointTwo]
+                        if (player == 'PLAYER_TWO'):
+                            alpha = max(alpha, option)
+                        else:
+                            beta = min(beta, option)
+                        if (beta < alpha):
+                            break
         if(bestMove is None ):
-            return self.getHeuristicEvaluation()
+            for pointOne in self.gamePointManager.getAvailablePoints():
+                for pointTwo in self.gamePointManager.getAvailablePoints():
+                    if(pointOne != pointTwo):
+                        if (self.gameLineManager.canExist(GameFieldLine(pointOne, pointTwo))):
+                            bestMove = [pointOne, pointTwo]
 
         if(depth == 0):
             self.gameLineManager.drawLine(bestMove[0], bestMove[1])
