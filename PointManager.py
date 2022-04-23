@@ -2,7 +2,7 @@ import random
 from tkinter import *
 from GameFieldPoint import GameFieldPoint
 
-class GamePointManager():
+class PointManager():
     
     def __init__(self, canvas, pointCount):
         self.canvas = canvas
@@ -13,8 +13,13 @@ class GamePointManager():
         for i in range(self.pointCount):
             x = random.randint(5, self.canvas.winfo_width() - 5)
             y = random.randint(5, self.canvas.winfo_height() - 5)
+            for point in self.gamePoints:
+                if(x == point.getX()):
+                    print("equal")
+                    x = x + 1
             self.gamePoints.append(GameFieldPoint(x, y))
         self.availablePoints = self.gamePoints
+        self.drawPoints()
 
     def drawPoints(self):
         for point in self.gamePoints:
