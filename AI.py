@@ -3,48 +3,52 @@ import math
 from GameFieldLine import GameFieldLine
 
 class AI():
-    def __init__(self, points, lines, playerType, gameLineManager, gamePointManager):
+    def __init__(self, playerType, lineManager, pointManager):
         self.playerType = playerType
-        self.points = points
-        self.lines = gameLineManager.getLines()
-        self.gameLineManager = gameLineManager
-        self.gamePointManager = gamePointManager
+        self.lineManager = lineManager
+        self.pointManager = pointManager
 
     def setGameManager(self, gameManager):
         self.gameManager = gameManager
 
     def getPlayerType(self):
         return self.playerType
+        
     def getHeuristicEvaluation(self):
         eval = 0
-        for pointOne in self.gamePointManager.getAvailablePoints():
-            for pointTwo in self.gamePointManager.getAvailablePoints():
+        for pointOne in self.pointManager.getAvailablePoints():
+            for pointTwo in self.pointManager.getAvailablePoints():
                 if(pointOne != pointTwo):
-                    if (not (self.gameLineManager.canExist(GameFieldLine(pointOne, pointTwo)))):
+                    if (not (self.lineManager.canExist(GameFieldLine(pointOne, pointTwo)))):
                         eval = eval + 1
         return eval/2
 
     def miniMax(self, depth, player, alpha, beta):
-        otherPlayer = 'PLAYER_TWO' if player == 'PLAYER_ONE' else 'PLAYER_ONE'
+        otherPlayer = 'MINIMIZER' if player == 'MAXIMIZER' else 'MAXIMIZER'
         bestMove = None
         test = None
-        if(depth > 2 ): 
+        if(self.gameManager.checkState() != 'STILL ARE MOVES'):
+            if(player == 'MAXIMIZER'):
+                return -math.inf
+            elif(player == 'MINIMIZER'):
+                return math.inf
+        if(depth > 3):
             return self.getHeuristicEvaluation()
-        if(self.playerType == 'PLAYER_ONE'):
+        if(player == 'MAXIMIZER'):
             bestScore = -math.inf
         else:
             bestScore = math.inf
-        for pointOne in self.gamePointManager.getAvailablePoints():
-            for pointTwo in self.gamePointManager.getAvailablePoints():
+        for pointOne in self.pointManager.getAvailablePoints():
+            for pointTwo in self.pointManager.getAvailablePoints():
                 if(pointOne != pointTwo):
-                    if (self.gameLineManager.canExist(GameFieldLine(pointOne, pointTwo))):
+                    if (self.lineManager.canExist(GameFieldLine(pointOne, pointTwo))):
                         tmpLine = GameFieldLine(pointOne, pointTwo)
-                        self.gameLineManager.addLine(tmpLine)
-                        self.gamePointManager.removeAvailablePoints(pointOne, pointTwo)
-                        option = self.miniMax(depth + 1, otherPlayer)
-                        self.lines.remove(tmpLine)
-                        self.gamePointManager.addAvailablePoints(pointOne, pointTwo)
-                        if(self.playerType == 'PLAYER_ONE'):
+                        self.lineManager.addLine(tmpLine)
+                        self.pointManager.removeAvailablePoints(pointOne, pointTwo)
+                        option = self.miniMax(depth + 1, otherPlayer, alpha, beta)
+                        self.lineManager.removeLine(tmpLine)
+                        self.pointManager.addAvailablePoints(pointOne, pointTwo)
+                        if(player == 'MAXIMIZER'):
                             if(option>bestScore):
                                 bestScore = option      
                                 bestMove = [pointOne, pointTwo]
@@ -52,12 +56,22 @@ class AI():
                             if(option<bestScore):
                                 bestScore = option      
                                 bestMove = [pointOne, pointTwo]
+                        if (player == 'MINIMIZER'):
+                            alpha = max(alpha, option)
+                        else:
+                            beta = min(beta, option)
+                        if (beta < alpha):
+                            break
         if(bestMove is None ):
-            return self.getHeuristicEvaluation()
+            for pointOne in self.pointManager.getAvailablePoints():
+                for pointTwo in self.pointManager.getAvailablePoints():
+                    if(pointOne != pointTwo):
+                        if (self.lineManager.canExist(GameFieldLine(pointOne, pointTwo))):
+                            bestMove = [pointOne, pointTwo]
 
         if(depth == 0):
-            self.gameLineManager.drawLine(bestMove[0], bestMove[1])
-            self.gamePointManager.removeAvailablePoints(bestMove[0], bestMove[1])
+            self.lineManager.drawLine(bestMove[0], bestMove[1])
+            self.pointManager.removeAvailablePoints(bestMove[0], bestMove[1])
             print(bestScore)
         else:
             return bestScore
@@ -72,12 +86,12 @@ class AI():
 # from GameFieldLine import GameFieldLine
 
 # class AI():
-#     def __init__(self, points, lines, playerType, gameLineManager, gamePointManager):
+#     def __init__(self, points, lines, playerType, lineManager, pointManager):
 #         self.playerType = playerType
 #         self.points = points
-#         self.lines = gameLineManager.getLines()
-#         self.gameLineManager = gameLineManager
-#         self.gamePointManager = gamePointManager
+#         self.lines = lineManager.getLines()
+#         self.lineManager = lineManager
+#         self.pointManager = pointManager
 
 #     def setGameManager(self, gameManager):
 #         self.gameManager = gameManager
@@ -88,30 +102,30 @@ class AI():
 #     def miniMax(self, depth):
 #         winner = self.gameManager.checkState()
 #         result = None
-#         if(winner == 'PLAYER_ONE'):
+#         if(winner == 'MAXIMIZER'):
 #             result = 1
-#         elif(winner == 'PLAYER_TWO'):
+#         elif(winner == 'MINIMIZER'):
 #             result = -1
 #         if(result == -1 or result == 1):
 #             return result
-#         if(self.playerType == 'PLAYER_TWO'):
+#         if(self.playerType == 'MINIMIZER'):
 #             bestScore = -math.inf
-#             for firstPoint in self.gamePointManager.getAvailablePoints():
-#                 for secondPoint in self.gamePointManager.getAvailablePoints():
+#             for firstPoint in self.pointManager.getAvailablePoints():
+#                 for secondPoint in self.pointManager.getAvailablePoints():
 #                     if(firstPoint != secondPoint):
 #                         exists = False
 #                         for line in self.lines:
 #                             if(firstPoint == line.getStartPoint() or firstPoint == line.getEndPoint()):
 #                                 exists = True
 #                         if(not exists):
-#                             if (self.gameLineManager.canExist(GameFieldLine(firstPoint, secondPoint))):
-                                # self.gameLineManager.addLine(GameFieldLine(firstPoint, secondPoint))
-                                # self.gamePointManager.removeAvailablePoints(firstPoint, secondPoint)
+#                             if (self.lineManager.canExist(GameFieldLine(firstPoint, secondPoint))):
+                                # self.lineManager.addLine(GameFieldLine(firstPoint, secondPoint))
+                                # self.pointManager.removeAvailablePoints(firstPoint, secondPoint)
 #                                 score = self.miniMax(depth + 1)
                                 # for line in self.lines:
                                 #     if(firstPoint == line.getStartPoint() or firstPoint == line.getEndPoint()):
                                 #         self.lines.remove(line)
-#                                 self.gamePointManager.addAvailablePoints(firstPoint, secondPoint)
+#                                 self.pointManager.addAvailablePoints(firstPoint, secondPoint)
 #                                 if(score > bestScore):
 #                                     bestScore = score
 #                                     bestMove = [firstPoint, secondPoint]
@@ -121,26 +135,26 @@ class AI():
 #     def makeTurn(self):
 #         bestScore = -math.inf
 #         i = 1
-#         for firstPoint in self.gamePointManager.getAvailablePoints():
-#             for secondPoint in self.gamePointManager.getAvailablePoints():
+#         for firstPoint in self.pointManager.getAvailablePoints():
+#             for secondPoint in self.pointManager.getAvailablePoints():
 #                     if(firstPoint != secondPoint):
 #                         exists = False
 #                         for line in self.lines:
 #                             if(firstPoint == line.getStartPoint() or firstPoint == line.getEndPoint()):
 #                                 exists = True
 #                         if(not exists):
-#                             if (self.gameLineManager.canExist(GameFieldLine(firstPoint, secondPoint))):
-#                                 self.gameLineManager.addLine(GameFieldLine(firstPoint, secondPoint))
-#                                 self.gamePointManager.removeAvailablePoints(firstPoint, secondPoint)
+#                             if (self.lineManager.canExist(GameFieldLine(firstPoint, secondPoint))):
+#                                 self.lineManager.addLine(GameFieldLine(firstPoint, secondPoint))
+#                                 self.pointManager.removeAvailablePoints(firstPoint, secondPoint)
 #                                 score = self.miniMax(0)
 #                                 i = i+1
 #                                 print(i)
 #                                 for line in self.lines:
 #                                     if(firstPoint == line.getStartPoint() or firstPoint == line.getEndPoint()):
 #                                         self.lines.remove(line)
-#                                 self.gamePointManager.addAvailablePoints(firstPoint, secondPoint)
+#                                 self.pointManager.addAvailablePoints(firstPoint, secondPoint)
 #                                 if(score > bestScore):
 #                                     bestScore = score
 #                                     bestMove = [firstPoint, secondPoint]
-        # self.gameLineManager.drawLine(bestMove[0], bestMove[1])
-        # self.gamePointManager.removeAvailablePoints(bestMove[0], bestMove[1])
+        # self.lineManager.drawLine(bestMove[0], bestMove[1])
+        # self.pointManager.removeAvailablePoints(bestMove[0], bestMove[1])

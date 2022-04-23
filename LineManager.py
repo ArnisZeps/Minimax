@@ -1,20 +1,19 @@
 from tkinter import *
 from GameFieldLine import GameFieldLine
 
-class GameLineManager():
+class LineManager():
     gameLines = []
     def __init__(self, canvas):
         self.canvas = canvas
         
-    def getLines(self):
-        return self.gameLines
+    def resetLines(self):
+        self.gameLines = []
+
     def addLine(self, line):
         self.gameLines.append(line)
 
-    def debugDrawPoints(self, x, y):
-        x1, y1 = (x - 3), (y - 3)
-        x2, y2 = (x + 3), (y + 3)
-        self.canvas.create_oval(x1, y1, x2, y2, fill="#FFC0CB")    
+    def removeLine(self, line):
+        self.gameLines.remove(line)  
 
     def drawLine(self, startPoint, endPoint):
         self.canvas.create_line(
@@ -34,8 +33,7 @@ class GameLineManager():
                 (line.getEndPoint() == newLine.getStartPoint() or line.getEndPoint() == newLine.getEndPoint())
                 ):
                     return False
-                    
-                    
+               
             for line in self.gameLines:
                 x1 = line.getStartPoint().getX()
                 x2 = line.getEndPoint().getX() 
@@ -46,7 +44,10 @@ class GameLineManager():
                 y3 = (newLine.getStartPoint().getY()) * - 1 
                 y4 = (newLine.getEndPoint().getY()) * - 1 
                 a1 = ((y2 - y1) / (x2 - x1))
-                a2 = ((y3 - y4) / (x3 - x4))
+                try:
+                    a2 = ((y3 - y4) / (x3 - x4))
+                except:
+                    print("ERR X3: ", x3, " X4: ", x4, " Y3: ", y3, " Y4: ", y4)
                 b1 = y1 - a1 * x1
                 b2 = y3 - a2 * x3
                 xa = (b2 - b1) / (a1 - a2) 
